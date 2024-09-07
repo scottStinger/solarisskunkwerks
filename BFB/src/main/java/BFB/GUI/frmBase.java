@@ -2248,7 +2248,7 @@ public class frmBase extends javax.swing.JFrame implements java.awt.datatransfer
 
         lblMotive.setText("Motive Type");
 
-        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Any Motive", "Biped", "Quad" }));
+        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Any Motive", "Biped", "Quad", "LAM" }));
         cmbMotive.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbMotiveFilter(evt);

@@ -162,7 +162,7 @@ public class dlgAdvancedSearch extends javax.swing.JDialog {
 
         jLabel15.setText("Motive Type:");
 
-        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Biped", "Quad" }));
+        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Biped", "Quad", "LAM"}));
         cmbMotive.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbMotiveActionPerformed(evt);

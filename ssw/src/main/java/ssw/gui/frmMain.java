@@ -5649,7 +5649,7 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 2);
         pnlChassis.add(lblMotiveType, gridBagConstraints);
 
-        cmbMotiveType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Biped", "Quad" }));
+        cmbMotiveType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Biped", "Quad", "LAM" }));
         cmbMotiveType.setMaximumSize(new java.awt.Dimension(150, 20));
         cmbMotiveType.setMinimumSize(new java.awt.Dimension(150, 20));
         cmbMotiveType.setPreferredSize(new java.awt.Dimension(150, 20));
@@ -10877,7 +10877,7 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
     private void cmbMotiveTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbMotiveTypeActionPerformed
         if( cmbMotiveType.getSelectedIndex() == 0 ) {
             // if the mech is already a biped, forget it
-            if( ! CurMech.IsQuad() ) { return; }
+            if( ! CurMech.IsQuad() && ! CurMech.IsLam() ) { return; }
 
             //Check for Robotic cockpit which is not allowed on a biped.
             if ( CurMech.GetCockpit().CritName().equals("Robotic Cockpit") ) {
@@ -10896,7 +10896,7 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
             ((javax.swing.border.TitledBorder) pnlRLArmorBox.getBorder()).setTitle( "RL" );
             scrRACrits.setPreferredSize( new java.awt.Dimension( 105, 170 ) );
             scrLACrits.setPreferredSize( new java.awt.Dimension( 105, 170 ) );
-        } else {
+        } else if( cmbMotiveType.getSelectedIndex() == 1 ){
             // if the mech is already a quad, forget it.
             if( CurMech.IsQuad() ) { return; }
             CurMech.SetQuad();
@@ -10910,6 +10910,20 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
             ((javax.swing.border.TitledBorder) pnlRLArmorBox.getBorder()).setTitle( "RRL" );
             scrRACrits.setPreferredSize( new java.awt.Dimension( 105, 87 ) );
             scrLACrits.setPreferredSize( new java.awt.Dimension( 105, 87 ) );
+        } else {
+            // if the mech is already a LAM, forget it.
+            if( CurMech.IsLam() ) { return; }
+            CurMech.SetLam();
+            SetPatchworkArmor();
+            // internal structure is always reset to standard on changing the
+            // motive type.
+            cmbInternalType.setSelectedIndex( 0 );
+            ((javax.swing.border.TitledBorder) pnlLAArmorBox.getBorder()).setTitle( "LA" );
+            ((javax.swing.border.TitledBorder) pnlRAArmorBox.getBorder()).setTitle( "RA" );
+            ((javax.swing.border.TitledBorder) pnlLLArmorBox.getBorder()).setTitle( "LL" );
+            ((javax.swing.border.TitledBorder) pnlRLArmorBox.getBorder()).setTitle( "RL" );
+            scrRACrits.setPreferredSize( new java.awt.Dimension( 105, 170 ) );
+            scrLACrits.setPreferredSize( new java.awt.Dimension( 105, 170 ) );
         }
 
         // set the loadout arrays

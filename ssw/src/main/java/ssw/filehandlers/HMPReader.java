@@ -152,7 +152,8 @@ public class HMPReader {
                 break;
             case 2:
                 // LAM
-                throw new Exception( "SSW does not support and cannot load LAMs." );
+                m.SetLam();
+                break;
             case 3:
                 // armless
                 throw new Exception( "SSW does not support and cannot load armless 'Mechs." );

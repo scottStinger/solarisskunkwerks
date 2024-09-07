@@ -247,6 +247,7 @@ public class TXTWriter {
             retval += "Chassis Config: ";
             String chassisString = "Biped";
             if ( CurMech.IsQuad() ) { chassisString.replace("Biped", "Quad"); }
+            if ( CurMech.IsLam() ) { chassisString.replace("Biped", "LAM"); }
             if ( CurMech.IsOmnimech() ) { chassisString += " Omnimech"; }
             if ( CurMech.IsIndustrialmech() ) { chassisString += " IndustrialMech"; }
             retval += chassisString + NL;

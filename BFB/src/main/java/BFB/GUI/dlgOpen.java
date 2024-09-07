@@ -83,7 +83,7 @@ public class dlgOpen extends javax.swing.JFrame implements java.awt.datatransfer
         cmbTech.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"Any Tech", "Clan", "Inner Sphere", "Mixed"}));
         cmbEra.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"Any Era", "Age of War/Star League", "Succession Wars", "Clan Invasion"}));
         cmbMechType.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"Any Type", "BattleMech", "IndustrialMech", "Primitive BattleMech", "Primitive IndustrialMech"}));
-        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"Any Motive", "Biped", "Quad"}));
+        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"Any Motive", "Biped", "Quad", "LAM"}));
 
         LoadList(true);
         loadChosen();
@@ -673,7 +673,7 @@ public class dlgOpen extends javax.swing.JFrame implements java.awt.datatransfer
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         jPanel5.add(jLabel15, gridBagConstraints);
 
-        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Biped", "Quad" }));
+        cmbMotive.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Biped", "Quad", "LAM" }));
         cmbMotive.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbMotiveActionPerformed(evt);

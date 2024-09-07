@@ -562,6 +562,8 @@ public class MechWriter {
     private String GetMotiveType() {
         if( CurMech.IsQuad() ) {
             return "Quad";
+        } else if(CurMech.IsLam()) {
+            return "LAM";
         } else {
             return "Biped";
         }

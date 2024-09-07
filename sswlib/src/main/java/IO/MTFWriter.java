@@ -86,7 +86,10 @@ public class MTFWriter {
 
         // second block handles general mech stuff
         FR.newLine();
-        if( CurMech.IsQuad() ) {
+        if( CurMech.IsLam() ) {
+            FR.write( "Config:Land-Air Mech" );
+        }
+        else if( CurMech.IsQuad() ) {
             if( CurMech.IsOmnimech() ) {
                 FR.write( "Config:Quad Omnimech" );
             } else {
