@@ -679,6 +679,12 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
         // deal with the mech's engine rating here.  Reset the Run MP label too
         if( CurWalk > MaxWalk ) { CurWalk = MaxWalk; }
         //CurMech.GetEngine().SetRating( CurWalk * CurMech.GetTonnage(), CurMech.IsPrimitive() );
+
+        // Setting CurWalk to 3 for LAMs
+        if( CurMech.IsLam() ) {
+            CurWalk = 3;
+        }
+
         try {
             CurMech.SetWalkMP( CurWalk );
         } catch( Exception e ) {
@@ -853,6 +859,11 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
 
         if( CurMech.IsOmnimech() ) {
             min = CurMech.GetJumpJets().GetBaseLoadoutNumJJ();
+        }
+
+        // Setting to min 3 JJ for LAMs.
+        if( CurMech.IsLam() ) {
+            min = 3;
         }
 
         if( CurMech.GetJumpJets().IsImproved() ) {
@@ -2006,6 +2017,75 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
             }
         }
     }
+
+    // private void RecalcMechType() {
+    //     // recalculates the mech type
+    //     // get the current lookup in case we can't fit the new one
+    //     String OldVal = CurMech.GetCockpit().LookupName();
+    //     String LookupVal = (String) cmbCockpitType.getSelectedItem();
+    //     if( OldVal.equals( LookupVal ) ) { return; }
+    //     ifVisitor v = (ifVisitor) CurMech.Lookup( LookupVal );
+        
+    //     try {
+    //         CurMech.Visit( v );
+
+    //         if (!CurMech.GetCockpit().CanArmor())
+    //             CurMech.GetCockpit().ArmorComponent(false);
+
+    //     } catch( Exception e ) {
+    //         v = (ifVisitor) CurMech.Lookup( OldVal );
+    //         try {
+    //             Media.Messager( this, "The new cockpit type is not valid.  Error:\n" + e.getMessage() + "\nReverting to the previous cockpit type." );
+    //             CurMech.Visit( v );
+    //             cmbCockpitType.setSelectedItem( OldVal );
+    //         } catch( Exception e1 ) {
+    //             // wow, second one?  Get a new 'Mech.
+    //             Media.Messager( this, "Fatal error while attempting to revert to the old cockpit type:\n" + e.getMessage() + "\nStarting over with a new 'Mech.  Sorry." );
+    //             GetNewMech();
+    //         }
+    //     }
+
+    //     if ( !CurMech.GetGyro().LookupName().equals(cmbGyroType.getSelectedItem().toString()) )
+    //         cmbGyroType.setSelectedItem(CurMech.GetGyro().LookupName());
+        
+    //     // check the command console and ejection seat
+    //     if( CurMech.GetCockpit().CanUseCommandConsole() && CommonTools.IsAllowed( CurMech.GetCommandConsole().GetAvailability(), CurMech ) ) {
+    //         chkCommandConsole.setEnabled( true );
+    //         chkCommandConsole.setSelected(CurMech.HasCommandConsole());
+    //     } else {
+    //         chkCommandConsole.setEnabled( false );
+    //         chkCommandConsole.setSelected( false );
+    //     }
+    //     if( CurMech.CanUseFHES() && CommonTools.IsAllowed( CurMech.GetFHESAC(), CurMech ) ) {
+    //         chkFHES.setEnabled( true );
+    //     } else {
+    //         chkFHES.setSelected( false );
+    //         chkFHES.setSelected( false );
+    //     }
+    //     if( CurMech.GetCockpit().IsTorsoMounted() )
+    //     {
+    //         chkEjectionSeat.setEnabled( false );
+    //         chkEjectionSeat.setSelected( false );
+    //     }
+    //     if( CurMech.IsIndustrialmech() ) {
+    //         chkEjectionSeat.setEnabled( true );
+    //     } else {
+    //         chkEjectionSeat.setEnabled( false );
+    //         chkEjectionSeat.setSelected( false );
+    //     }
+    //     // remove the head turret if it's there.
+    //     if( CurMech.GetLoadout().HasHDTurret() ) {
+    //         try {
+    //             CurMech.GetLoadout().SetHDTurret( false, -1 );
+    //         } catch( Exception e ) {
+    //             Media.Messager( "Fatal error trying to remove head turret.\nRestarting with new 'Mech.  Sorry." );
+    //             GetNewMech();
+    //             return;
+    //         }
+    //     }
+    //     chkHDTurret.setSelected( false );
+    //     chkHDTurret.setEnabled( false );
+    // }
 
     private void CheckOmnimech() {
         // deals with the omnimech checkbox if needed
@@ -10877,7 +10957,7 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
     private void cmbMotiveTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbMotiveTypeActionPerformed
         if( cmbMotiveType.getSelectedIndex() == 0 ) {
             // if the mech is already a biped, forget it
-            if( ! CurMech.IsQuad() && ! CurMech.IsLam() ) { return; }
+            if( CurMech.IsBiped() ) { return; }
 
             //Check for Robotic cockpit which is not allowed on a biped.
             if ( CurMech.GetCockpit().CritName().equals("Robotic Cockpit") ) {
@@ -10911,12 +10991,41 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
             scrRACrits.setPreferredSize( new java.awt.Dimension( 105, 87 ) );
             scrLACrits.setPreferredSize( new java.awt.Dimension( 105, 87 ) );
         } else {
-            // if the mech is already a LAM, forget it.
+            // if the mech is already a LAM, do nothing.
             if( CurMech.IsLam() ) { return; }
             CurMech.SetLam();
-            SetPatchworkArmor();
-            // internal structure is always reset to standard on changing the
-            // motive type.
+            // LAMs can only be made from IS tech base.
+            cmbTechBase.setSelectedIndex( 0 );
+            // LAMs Cannot be OmniMechs
+            chkOmnimech.setSelected( false );
+            chkOmnimech.setEnabled( false );
+            btnLockChassis.setEnabled( chkOmnimech.isSelected() );
+            // Max LAM weight is 55 tons
+            if( cmbTonnage.getSelectedIndex() > 9 ) {
+                cmbTonnage.setSelectedIndex( 9 );
+            }
+            // LAMs can only be Bipedal BattleMechs
+            cmbMechType.setSelectedIndex( 0 );
+            // LAMs require a min jump MP of 3
+            FixWalkMPSpinner();
+            FixJJSpinnerModel();
+            RecalcJumpJets();
+            // Armor:     	May not use armor that requires crit space.
+            //              May used armored components.
+            cmbArmorType.setSelectedIndex( 0 );
+            RecalcArmor();
+            // Cockpit:   	May not use torso mounted nor cockpits that require extra crits.
+            cmbCockpitType.setSelectedIndex( 0 );
+            RecalcCockpit();
+            // Engines:   	Standard and Compact Only. No supercharger.
+            cmbEngineType.setSelectedIndex( 0 );
+            RecalcEngine();
+            // Gyro:	   	Standard, Compact, and Heavy Duty only.
+            cmbGyroType.setSelectedIndex( 0 );
+            RecalcGyro();
+            // Structure: 	May not use structure that requires crit space.
+            // Required LAM Conversion equipment: Bimodal == 15% of mass rounded up.
+            //                                    Standard == 10% of mass rounded up.
             cmbInternalType.setSelectedIndex( 0 );
             ((javax.swing.border.TitledBorder) pnlLAArmorBox.getBorder()).setTitle( "LA" );
             ((javax.swing.border.TitledBorder) pnlRAArmorBox.getBorder()).setTitle( "RA" );
@@ -10924,6 +11033,17 @@ public class frmMain extends javax.swing.JFrame implements java.awt.datatransfer
             ((javax.swing.border.TitledBorder) pnlRLArmorBox.getBorder()).setTitle( "RL" );
             scrRACrits.setPreferredSize( new java.awt.Dimension( 105, 170 ) );
             scrLACrits.setPreferredSize( new java.awt.Dimension( 105, 170 ) );
+            RecalcIntStruc();
+            // Primitive: 	May not use primitive components.
+            //              May use primitive and prototype weapsons.
+
+            // Other:		No items requiring crits in more than one hit location.
+            //              MASC and TSM okay, can all be mounted in one location.
+            //              No Chameleon, must be mounted in separate locations.
+            //              No backhoes/combines etc.
+            //              Except physical weapons may not mount weapons that require piloting roll. 
+            cmbPhysEnhance.setSelectedIndex( 0 );
+            RecalcEnhancements();
         }
 
         // set the loadout arrays

@@ -69,7 +69,8 @@ public class Mech implements ifUnit, ifBattleforce {
     public final static double[] DefensiveFactor = { 1.0, 1.0, 1.1, 1.1, 1.2, 1.2,
         1.3, 1.3, 1.3, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.5,
         1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6, 1.6, 1.6 };
-    private boolean Quad,
+    private boolean Biped,
+                    Quad,
                     Tripod,
                     Lam,
                     Omnimech,
@@ -80,6 +81,9 @@ public class Mech implements ifUnit, ifBattleforce {
                     HasVoidSig = false,
                     HasChameleon = false,
                     HasBlueShield = false,
+                    HasConversionEquipment = false,
+                    HasLandingGear = false,
+                    HasAvionics = false,
                     HasEnviroSealing = false,
                     HasEjectionSeat = false,
                     HasTracks = false,
@@ -107,6 +111,9 @@ public class Mech implements ifUnit, ifBattleforce {
                             VoidSig,
                             Chameleon,
                             BlueShield,
+                            ConversionEquipment,
+                            LandingGear,
+                            Avionics,
                             EnviroSealing,
                             Tracks;
     private SimplePlaceable EjectionSeat,
@@ -146,6 +153,7 @@ public class Mech implements ifUnit, ifBattleforce {
         MainLoadout.SetTechBase( AvailableCode.TECH_INNER_SPHERE );
 
         // Basic setup for the mech.  This is an arbitrary default chassis
+        Biped = true;
         Quad = false;
         Lam = false;
         Omnimech = false;
@@ -902,7 +910,12 @@ public class Mech implements ifUnit, ifBattleforce {
         }
 
         // set the mech to a biped
+        Biped = true;
         Quad = false;
+        Lam = false;
+
+        // remove LAM conversion equipment.
+        SetConversionEquipment( false );
 
         // remove the AES system entirely
         CurLAAES = LAAES;
@@ -1070,7 +1083,7 @@ public class Mech implements ifUnit, ifBattleforce {
         int NumHS = GetHeatSinks().GetNumHS() - CurEngine.FreeHeatSinks();
 
         // Get a new Quad Loadout and load up the queue
-        ifMechLoadout l = new QuadLoadout( Constants.BASELOADOUT_NAME, this );
+        ifMechLoadout l = new BipedLoadout( Constants.BASELOADOUT_NAME, this );
         l.SetTechBase( MainLoadout.GetTechBase() );
         l.SetRulesLevel( MainLoadout.GetRulesLevel() );
         l.SetEra( MainLoadout.GetEra() );
@@ -1092,6 +1105,11 @@ public class Mech implements ifUnit, ifBattleforce {
 
         // set the mech to a quad
         Quad = true;
+        Biped = false;
+        Lam = false;
+
+        // remove LAM conversion equipment.
+        SetConversionEquipment( false );
 
         // remove the AES system entirely
         CurLAAES = FLLAES;
@@ -1226,6 +1244,10 @@ public class Mech implements ifUnit, ifBattleforce {
         }
 
         SetChanged( true );
+    }
+
+    public boolean IsBiped() {
+        return Biped;
     }
 
     public boolean IsQuad() {
@@ -1460,7 +1482,7 @@ public class Mech implements ifUnit, ifBattleforce {
         int NumHS = GetHeatSinks().GetNumHS() - CurEngine.FreeHeatSinks();
 
         // Get a new LAM Loadout and load up the queue
-        ifMechLoadout l = new QuadLoadout( Constants.BASELOADOUT_NAME, this );
+        ifMechLoadout l = new BipedLoadout( Constants.BASELOADOUT_NAME, this );
         l.SetTechBase( MainLoadout.GetTechBase() );
         l.SetRulesLevel( MainLoadout.GetRulesLevel() );
         l.SetEra( MainLoadout.GetEra() );
@@ -1478,10 +1500,15 @@ public class Mech implements ifUnit, ifBattleforce {
 
         // set the mech to a LAM
         Lam = true;
+        Biped = false;
+        Quad = false;
+
+        // Required LAM Conversion equipment: Landing Gear: 1 CT, 1 LT, 1 RT
+        //                                    Avionics: 1 HD, 1LT, 1RT
+        //                                    Fuel: None, 1 ton fuel contained within engine.
+        SetConversionEquipment( true );
 
         // remove the AES system entirely
-        CurLAAES = FLLAES;
-        CurRAAES = FRLAES;
         HasRAAES = false;
         HasLAAES = false;
         HasLegAES = false;
@@ -4064,6 +4091,100 @@ public class Mech implements ifUnit, ifBattleforce {
 
     public MultiSlotSystem GetBlueShield() {
         return BlueShield;
+    }
+
+    public void SetConversionEquipment( boolean set) {
+        if( set == HasConversionEquipment ) {
+            return;
+        } else {
+            if( set ) {
+                try {
+                    SetLandingGear( true );
+                    SetAvionics( true );
+                } catch( Exception e ) {}
+            } else {
+                try {
+                    SetLandingGear( false );
+                    SetAvionics( false );
+                } catch( Exception e ) {}
+            }
+        }
+
+        SetChanged( true );
+    }
+
+    public boolean HasConversionEquipment() {
+        return HasConversionEquipment;
+    }
+
+    public MultiSlotSystem GetConversionEquipment() {
+        return ConversionEquipment;
+    }
+
+    public void SetLandingGear( boolean set ) throws Exception {
+        if( set == HasLandingGear ) {
+            return;
+        } else {
+            if( set ) {
+                try {
+                    MainLoadout.CheckExclusions( LandingGear );
+                } catch( Exception e ) {
+                    throw e;
+                }
+                if( ! LandingGear.Place( MainLoadout ) ) {
+                    MainLoadout.Remove( LandingGear );
+                    throw new Exception( "There is no available room for the Landing Gear!\nIt will not be allocated." );
+                }
+                AddMechModifier( LandingGear.GetMechModifier() );
+                HasLandingGear = true;
+            } else {
+                MainLoadout.Remove( LandingGear );
+                HasLandingGear = false;
+            }
+        }
+
+        SetChanged( true );
+    }
+
+    public boolean HasLandingGear() {
+        return HasLandingGear;
+    }
+
+    public MultiSlotSystem GetLandingGear() {
+        return LandingGear;
+    }
+
+    public void SetAvionics( boolean set ) throws Exception {
+        if( set == HasAvionics ) {
+            return;
+        } else {
+            if( set ) {
+                try {
+                    MainLoadout.CheckExclusions( Avionics );
+                } catch( Exception e ) {
+                    throw e;
+                }
+                if( ! Avionics.Place( MainLoadout ) ) {
+                    MainLoadout.Remove( Avionics );
+                    throw new Exception( "There is no available room for the Avionics!\nIt will not be allocated." );
+                }
+                AddMechModifier( Avionics.GetMechModifier() );
+                HasAvionics = true;
+            } else {
+                MainLoadout.Remove( Avionics );
+                HasAvionics = false;
+            }
+        }
+
+        SetChanged( true );
+    }
+
+    public boolean HasAvionics() {
+        return HasAvionics;
+    }
+
+    public MultiSlotSystem GetAvionics() {
+        return Avionics;
     }
 
     public void SetEnviroSealing( boolean set ) throws Exception {
